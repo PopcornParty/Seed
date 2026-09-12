@@ -8,7 +8,9 @@ This is **Bedrock only**. Java Edition is not implemented.
 Correctness is first. Features that are not implemented are labelled
 `UNSUPPORTED` instead of being faked.
 
-## What works now (v0.1.0)
+Repository: https://github.com/PopcornParty/Seed
+
+## What works now (v0.2.0)
 
 | Feature | Accuracy |
 |---|---|
@@ -18,9 +20,12 @@ Correctness is first. Features that are not implemented are labelled
 | Low-32-bit structure seed (MCPE-154939) | EXACT observation |
 | Local worker search + live seeds/sec | real measurement |
 | HTTP search API with job polling | real |
-| Result export JSON / CSV | real |
+| Result export JSON / CSV / TXT | real |
 | LocalStorage saved searches | real |
 | Native C++ engine + parity tests vs TypeScript | real |
+| Condition builder AND / OR, presets, ranking | real |
+| Candidate map overlay | real (candidates only) |
+| Benchmark page | real device measurement |
 | Biome generation | UNSUPPORTED |
 | Terrain / noise / height | UNSUPPORTED |
 | Exact world spawn | UNSUPPORTED |
@@ -85,11 +90,11 @@ Target recorded on every search: **Bedrock 1.21** structure-set constants as
 published by community research (MCBEStructureFinder 1.18+ branch salts /
 spacing). Later game versions can differ. Do not mix versions.
 
-Engine version: **0.1.0**
+Engine version: **0.2.0**
 
 ## Next
 
-1. Verified biome source for Bedrock 1.18+ (likely via a reviewed cubiomes-bedrock port)
+1. Verified biome source for Bedrock 1.18+ (reviewed cubiomes-bedrock port)
 2. Ancient City / Trial Chambers / Trail Ruins salts from primary dumps
 3. Stronghold biome window
 4. World-spawn search
