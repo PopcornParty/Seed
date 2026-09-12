@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Seed — Bedrock Seed Hunter</title>
+<style>
+:root{--bg:#071018;--card:#122033;--ink:#e8f1fb;--muted:#8ea3bb;--accent:#3ee0c3;--accent2:#7cd4ff;--line:#22364c;font-family:Segoe UI,system-ui,sans-serif}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(1200px 600px at 10% -10%,#123047 0%,var(--bg) 45%);color:var(--ink)}
+.layout{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+nav.side{background:#0a1522;border-right:1px solid var(--line);padding:22px 16px}
+nav.side h1{margin:0 0 4px;letter-spacing:.18em;font-size:22px;color:var(--accent)}
+nav.side .sub{color:var(--muted);font-size:12px;margin-bottom:18px}
+nav.side button.nav{display:block;width:100%;text-align:left;padding:8px 10px;margin:0 0 4px;color:var(--ink);background:transparent;border:0;border-radius:8px;font-size:14px;font-weight:500}
+nav.side button.nav.active,nav.side button.nav:hover{background:#173049}
+main{padding:28px 34px 60px;max-width:1100px}
+h2{margin:0 0 8px;font-size:28px}.lead{color:var(--muted);max-width:70ch;line-height:1.5}
+.card{background:#122033;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:14px 0}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.stat{background:#0d1a2a;border:1px solid var(--line);border-radius:10px;padding:12px}.stat b{display:block;font-size:20px;margin-top:4px}
+button,.btn{background:var(--accent);color:#06221f;border:0;border-radius:10px;padding:9px 14px;font-weight:700;cursor:pointer}
+button.secondary{background:#1b3148;color:var(--ink)}button.ghost{background:transparent;color:var(--accent2);border:1px solid var(--line)}
+input,select{background:#0b1624;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+label.field{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+.badge{font-size:11px;padding:2px 8px;border-radius:999px;font-weight:700}
+.badge.VALIDATED{background:#16351f;color:#5ad67a}.badge.APPROXIMATE{background:#3a2e12;color:#e7b549}.badge.UNSUPPORTED{background:#3a1717;color:#e36b6b}.badge.EXACT{background:#12324a;color:#7cd4ff}
+.note{color:var(--muted);font-size:13px;line-height:1.45}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}tr:hover td{background:#15283c}
+.condrow{display:grid;grid-template-columns:170px 90px 110px 120px;gap:8px;align-items:center;margin:8px 0}
+canvas.map{width:100%;height:520px;display:block;background:#07131e;border-radius:12px;border:1px solid var(--line)}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="side">
+  <h1>SEED</h1>
+  <div class="sub">Bedrock 1.21 · engine 0.2.0</div>
+  <button class="nav active" data-page="home">Home</button>
+  <button class="nav" data-page="search">Search</button>
+  <button class="nav" data-page="sim">Simulator</button>
+  <button class="nav" data-page="map">Map</button>
+  <button class="nav" data-page="about">Accuracy</button>
+</nav>
+<main id="view"></main>
+</div>
+<script>
+const STRUCTURES = {
+  village:{id:"village",spacing:27,spawnRange:17,salt:10387312,num:4,acc:"VALIDATED",ok:true},
+  desert_pyramid:{id:"desert_pyramid",spacing:32,spawnRange:24,salt:14357617,num:2,acc:"VALIDATED",ok:true},
+  jungle_temple:{id:"jungle_temple",spacing:32,spawnRange:24,salt:14357617,num:2,acc:"VALIDATED",ok:true},
+  swamp_hut:{id:"swamp_hut",spacing:32,spawnRange:24,salt:14357617,num:2,acc:"VALIDATED",ok:true},
+  igloo:{id:"igloo",spacing:32,spawnRange:24,salt:14357617,num:2,acc:"VALIDATED",ok:true},
+  ocean_monument:{id:"ocean_monument",spacing:32,spawnRange:27,salt:10387313,num:4,acc:"VALIDATED",ok:true},
+  woodland_mansion:{id:"woodland_mansion",spacing:80,spawnRange:60,salt:10387319,num:4,acc:"VALIDATED",ok:true},
+  pillager_outpost:{id:"pillager_outpost",spacing:80,spawnRange:56,salt:165745296,num:4,acc:"VALIDATED",ok:true},
+  buried_treasure:{id:"buried_treasure",spacing:4,spawnRange:2,salt:16842397,num:4,acc:"VALIDATED",ok:true},
+  shipwreck:{id:"shipwreck",spacing:10,spawnRange:5,salt:1,num:4,acc:"VALIDATED",ok:true},
+  ocean_ruin:{id:"ocean_ruin",spacing:12,spawnRange:5,salt:14357621,num:4,acc:"VALIDATED",ok:true},
+  ruined_portal:{id:"ruined_portal",spacing:40,spawnRange:25,salt:40552231,num:4,acc:"VALIDATED",ok:true},
+  nether_complex:{id:"nether_complex",spacing:30,spawnRange:26,salt:430084232,num:4,acc:"VALIDATED",ok:true},
+  end_city:{id:"end_city",spacing:20,spawnRange:9,salt:10387313,num:4,acc:"VALIDATED",ok:true},
+  stronghold:{id:"stronghold",spacing:0,spawnRange:0,salt:0,num:0,acc:"APPROXIMATE",ok:true},
+  ancient_city:{id:"ancient_city",acc:"UNSUPPORTED",ok:false}
+};
+const IMPL = Object.values(STRUCTURES).filter(s => s.ok);
+const u32 = x => x >>> 0;
+const low32 = seed => Number(BigInt(seed) & 0xffffffffn) >>> 0;
+function twistInit(seed, i){ return u32(Math.imul(1812433253, u32(seed) ^ u32(seed) >>> 30) + i); }
+function mtFirst(seed, n){
+  const mt = new Uint32Array(n+1), mag = new Uint32Array(n+1);
+  mt[0] = u32(seed);
+  for (let i=1;i<n+1;i++) mt[i]=twistInit(mt[i-1], i);
+  let extra=mt[n];
+  for (let i=n;i<397;i++) extra=twistInit(extra, i+1);
+  mag[0]=extra;
+  for (let i=1;i<n+1;i++) mag[i]=twistInit(mag[i-1], i+397);
+  for (let i=0;i<n;i++){
+    const y=(mt[i]&0x80000000)+(mt[i+1]&0x7fffffff);
+    mt[i]=y>>>1^mag[i];
+    if (y%2) mt[i]^=2567483615;
+  }
+  const out=[];
+  for (let i=0;i<n;i++){
+    let y=mt[i]; y^=y>>>11; y^=y<<7&2636928640; y^=y<<15&4022730752; y^=y>>>18; out.push(u32(y));
+  }
+  return out;
+}
+function saltMix(rx, rz, salt){ return u32(salt - Math.imul(245998635, rz) - Math.imul(1724254968, rx)); }
+function snap(chunk, spacing, off){
+  let rem = chunk % spacing; if (rem<0) rem+=spacing;
+  let d = off-rem; if (d<0) d+=spacing;
+  return chunk+d;
+}
+function candidateChunk(seed32, spec, rx, rz){
+  const s = u32(saltMix(rx, rz, spec.salt) + seed32);
+  const r = mtFirst(s, spec.num);
+  let ox, oz;
+  if (spec.num===2){ ox=r[0]%spec.spawnRange; oz=r[1]%spec.spawnRange; }
+  else {
+    ox=Math.floor(((r[0]%spec.spawnRange)+(r[1]%spec.spawnRange))/2);
+    oz=Math.floor(((r[2]%spec.spawnRange)+(r[3]%spec.spawnRange))/2);
+  }
+  return {x:snap(rx*spec.spacing, spec.spacing, ox), z:snap(rz*spec.spacing, spec.spacing, oz)};
+}
+function blockOf(ch){ return {x:ch.x*16+8, z:ch.z*16+8}; }
+function dist(x1,z1,x2,z2){ const dx=x1-x2,dz=z1-z2; return Math.sqrt(dx*dx+dz*dz); }
+function strongholds(seed32){
+  const r = mtFirst(seed32, 2);
+  let ang = 6.2831855 * (u32(r[0]) * 2.3283064365386963e-10);
+  let rad = (r[1]%16)+40;
+  const out=[];
+  for (let i=0;i<3;i++){
+    out.push({x:Math.floor(Math.cos(ang)*rad)*16, z:Math.floor(Math.sin(ang)*rad)*16});
+    ang += 1.8849558; rad += 8;
+  }
+  return out;
+}
+function collect(seed64, spec, area){
+  const seed32 = low32(seed64);
+  const hits=[];
+  if (!spec.ok) return hits;
+  if (spec.id==="stronghold"){
+    for (const p of strongholds(seed32)){
+      const d=dist(p.x,p.z,area.cx,area.cz);
+      if (d<=area.r+1) hits.push({name:spec.id,x:p.x,z:p.z,distance:d,accuracy:spec.acc});
+    }
+    return hits;
+  }
+  const minCx=Math.floor((area.cx-area.r)/16), maxCx=Math.floor((area.cx+area.r)/16);
+  const minCz=Math.floor((area.cz-area.r)/16), maxCz=Math.floor((area.cz+area.r)/16);
+  const rx0=Math.floor(minCx/spec.spacing)-1, rx1=Math.floor(maxCx/spec.spacing)+1;
+  const rz0=Math.floor(minCz/spec.spacing)-1, rz1=Math.floor(maxCz/spec.spacing)+1;
+  for (let rx=rx0; rx<=rx1; rx++) for (let rz=rz0; rz<=rz1; rz++){
+    const b=blockOf(candidateChunk(seed32, spec, rx, rz));
+    const d=dist(b.x,b.z,area.cx,area.cz);
+    if (d<=area.r) hits.push({name:spec.id,x:b.x,z:b.z,distance:d,accuracy:spec.acc});
+  }
+  return hits;
+}
+function parseSeed(raw){
+  const t=String(raw||"").trim();
+  if (/^-?\d+$/.test(t)){
+    try { return {seed:BigInt(t), acc:"EXACT"}; } catch {}
+  }
+  let h=0n; for (const ch of t) h = (h*31n + BigInt(ch.charCodeAt(0))) & ((1n<<64n)-1n);
+  return {seed:h, acc:"APPROXIMATE"};
+}
+
+const view = document.getElementById("view");
+let page = "home";
+const state = {
+  seedCount: 20000, start: "0", cx:0, cz:0, r:2000,
+  name:"village", minCount:1, maxDist:500,
+  running:false, stats:null, results:[], selected:null,
+  simSeed:"1"
+};
+
+document.querySelectorAll("button.nav").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll("button.nav").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    page = btn.dataset.page;
+    render();
+  };
+});
+
+function badge(a){ return `<span class="badge ${a}">${a}</span>`; }
+
+function renderHome(){
+  view.innerHTML = `
+    <h2>Bedrock seed hunter</h2>
+    <p class="lead">This page is the website. Search runs in your browser. Results are structure <em>candidates</em> — confirm with /locate in Bedrock.</p>
+    <div class="card">
+      <p>Bedrock only. Biomes, terrain, Ancient City, and exact world spawn are ${badge("UNSUPPORTED")}.</p>
+      <p>Village / monument / portal / temples / outpost / treasure / shipwreck / ruins / nether / end city candidates are ${badge("VALIDATED")}.</p>
+      <p>Stronghold ring is ${badge("APPROXIMATE")} (no biome window).</p>
+    </div>
+    <button onclick="document.querySelector('[data-page=search]').click()">Open Search</button>
+  `;
+}
+
+function renderSearch(){
+  const opts = IMPL.map(s => `<option ${s.id===state.name?"selected":""}>${s.id}</option>`).join("");
+  view.innerHTML = `
+    <h2>Search</h2>
+    <p class="lead">Runs on this device. No server required.</p>
+    <div class="card condrow">
+      <select id="st">${opts}</select>
+      <label class="field">Count<input id="cnt" type="number" value="${state.minCount}"></label>
+      <label class="field">Max blocks<input id="md" type="number" value="${state.maxDist}"></label>
+      <div>${badge(STRUCTURES[state.name].acc)}</div>
+    </div>
+    <div class="card row">
+      <label class="field">Seeds<input id="sc" type="number" value="${state.seedCount}"></label>
+      <label class="field">Start<input id="ss" value="${state.start}"></label>
+      <label class="field">Radius<input id="rr" type="number" value="${state.r}"></label>
+      <button id="go">${state.running?"Searching…":"Run search"}</button>
+      <button class="secondary" id="stop">Cancel</button>
+    </div>
+    <div id="stats"></div>
+    <div class="card"><table><thead><tr><th>#</th><th>Seed</th><th>Score</th><th>Nearest</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <div class="card" id="detail"><p class="note">Click a result.</p></div>
+  `;
+  const bind = () => {
+    state.name = document.getElementById("st").value;
+    state.minCount = Number(document.getElementById("cnt").value);
+    state.maxDist = Number(document.getElementById("md").value);
+    state.seedCount = Number(document.getElementById("sc").value);
+    state.start = document.getElementById("ss").value;
+    state.r = Number(document.getElementById("rr").value);
+  };
+  document.getElementById("st").onchange = () => { bind(); renderSearch(); };
+  document.getElementById("go").onclick = () => { bind(); runSearch(); };
+  document.getElementById("stop").onclick = () => { state.running=false; };
+  paintResults();
+}
+
+function paintResults(){
+  const stats = document.getElementById("stats");
+  const rows = document.getElementById("rows");
+  if (!stats || !rows) return;
+  if (state.stats){
+    stats.innerHTML = `<div class="statgrid">
+      <div class="stat">Status<b>${state.running?"SEARCH RUNNING": "done"}</b></div>
+      <div class="stat">Seeds<b>${state.stats.tested.toLocaleString()}</b></div>
+      <div class="stat">Speed<b>${Math.round(state.stats.sps).toLocaleString()}/s</b></div>
+      <div class="stat">Matches<b>${state.stats.matched.toLocaleString()}</b></div>
+    </div>`;
+  }
+  rows.innerHTML = state.results.map((r,i) => `<tr data-i="${i}"><td>${i+1}</td><td>${r.seed}</td><td>${r.score.toFixed(1)}</td><td>${Math.round(r.nearest)}</td></tr>`).join("");
+  rows.querySelectorAll("tr").forEach(tr => tr.onclick = () => {
+    state.selected = state.results[Number(tr.dataset.i)];
+    const d = document.getElementById("detail");
+    d.innerHTML = `<h3>SEED ${state.selected.seed}</h3>` +
+      state.selected.hits.map(h => `<p>${h.name} ${Math.round(h.distance)}m (${h.x}, ${h.z}) ${badge(h.accuracy)}</p>`).join("") +
+      `<button onclick="navigator.clipboard.writeText('${state.selected.seed}')">Copy seed</button>`;
+  });
+}
+
+function runSearch(){
+  state.running = true; state.results=[]; state.stats={tested:0,matched:0,sps:0};
+  paintResults();
+  const spec = STRUCTURES[state.name];
+  const area = {cx:state.cx, cz:state.cz, r:state.r};
+  const start = parseSeed(state.start).seed;
+  const total = Math.max(1, Math.min(500000, state.seedCount|0));
+  const t0 = performance.now();
+  let i = 0;
+  function chunk(){
+    if (!state.running) return;
+    const end = Math.min(total, i+400);
+    for (; i<end; i++){
+      const seed = start + BigInt(i);
+      const hits = collect(seed, spec, area).filter(h => h.distance <= state.maxDist);
+      if (hits.length >= state.minCount){
+        hits.sort((a,b)=>a.distance-b.distance);
+        const nearest = hits[0].distance;
+        const score = 20 * (0.5 + 0.5 * (1 - nearest/Math.max(state.maxDist,1)));
+        state.results.push({seed: seed.toString(), score, nearest, hits: hits.slice(0,8)});
+        state.results.sort((a,b)=>b.score-a.score);
+        if (state.results.length>40) state.results.pop();
+        state.stats.matched++;
+      }
+    }
+    const elapsed = performance.now()-t0;
+    state.stats.tested = i;
+    state.stats.sps = elapsed>0 ? i*1000/elapsed : 0;
+    paintResults();
+    if (i<total) requestAnimationFrame(chunk);
+    else state.running=false, paintResults();
+  }
+  requestAnimationFrame(chunk);
+}
+
+function renderSim(){
+  view.innerHTML = `
+    <h2>Simulator</h2>
+    <p class="lead">Candidate positions for one seed. Not a biome world.</p>
+    <div class="card row">
+      <label class="field">Seed<input id="sim" value="${state.simSeed}"></label>
+      <label class="field">Radius<input id="sr" type="number" value="${state.r}"></label>
+      <button id="simgo">Simulate</button>
+    </div>
+    <div class="card" id="simout"></div>
+  `;
+  const run = () => {
+    state.simSeed = document.getElementById("sim").value;
+    state.r = Number(document.getElementById("sr").value);
+    const parsed = parseSeed(state.simSeed);
+    const area = {cx:0,cz:0,r:state.r};
+    let html = `<p>Parse ${badge(parsed.acc)} · numeric seed ${parsed.seed}</p>`;
+    for (const spec of IMPL){
+      const hits = collect(parsed.seed, spec, area).sort((a,b)=>a.distance-b.distance).slice(0,6);
+      html += `<p><strong>${spec.id}</strong> ${badge(spec.acc)} — ${hits.length?hits.map(h=>`${Math.round(h.distance)}m (${h.x},${h.z})`).join(" · "):"none in radius"}</p>`;
+    }
+    document.getElementById("simout").innerHTML = html;
+  };
+  document.getElementById("simgo").onclick = run;
+  run();
+}
+
+function renderMap(){
+  view.innerHTML = `
+    <h2>Map</h2>
+    <p class="lead">Candidate overlay only.</p>
+    <div class="card row">
+      <label class="field">Seed<input id="ms" value="${state.simSeed}"></label>
+      <label class="field">Radius<input id="mr" type="number" value="${state.r}"></label>
+      <button id="mdraw">Draw</button>
+    </div>
+    <canvas class="map" id="cv"></canvas>
+    <p class="note" id="mnote"></p>
+  `;
+  const draw = () => {
+    state.simSeed = document.getElementById("ms").value;
+    state.r = Number(document.getElementById("mr").value);
+    const parsed = parseSeed(state.simSeed);
+    const area = {cx:0,cz:0,r:state.r};
+    const hits=[];
+    for (const spec of IMPL) hits.push(...collect(parsed.seed, spec, area));
+    const c = document.getElementById("cv");
+    const ctx = c.getContext("2d");
+    const w = c.width = c.clientWidth * devicePixelRatio;
+    const h = c.height = c.clientHeight * devicePixelRatio;
+    ctx.fillStyle="#07131e"; ctx.fillRect(0,0,w,h);
+    const scale = (Math.min(w,h)*0.42)/Math.max(state.r,1);
+    const to = (x,z) => [w/2+x*scale, h/2+z*scale];
+    ctx.strokeStyle="#1b3348";
+    for (const ring of [500,1000,1500,state.r]){
+      ctx.beginPath(); const [x,y]=to(0,0); ctx.arc(x,y,ring*scale,0,Math.PI*2); ctx.stroke();
+    }
+    ctx.fillStyle="#3ee0c3"; const [sx,sz]=to(0,0); ctx.beginPath(); ctx.arc(sx,sz,5*devicePixelRatio,0,Math.PI*2); ctx.fill();
+    for (const hit of hits){
+      const [x,y]=to(hit.x,hit.z);
+      ctx.fillStyle = hit.name==="village" ? "#f0c14b" : hit.name==="stronghold" ? "#ff6b6b" : "#7cd4ff";
+      ctx.beginPath(); ctx.arc(x,y,3.5*devicePixelRatio,0,Math.PI*2); ctx.fill();
+    }
+    document.getElementById("mnote").textContent = hits.length + " candidates · parse " + parsed.acc;
+  };
+  document.getElementById("mdraw").onclick = draw;
+  draw();
+}
+
+function renderAbout(){
+  view.innerHTML = `
+    <h2>Accuracy</h2>
+    <div class="card">
+      <p>${badge("VALIDATED")} candidate = published Bedrock region / salt / truncated MT19937 placement. The structure may still fail biome or terrain checks.</p>
+      <p>${badge("APPROXIMATE")} stronghold = first ring spiral only.</p>
+      <p>${badge("UNSUPPORTED")} biomes, terrain, loot, Ancient City, Trail Ruins, Trial Chambers, exact spawn.</p>
+      <p class="note">Source: <a href="https://github.com/PopcornParty/Seed" style="color:#7cd4ff">github.com/PopcornParty/Seed</a></p>
+    </div>
+  `;
+}
+
+function render(){
+  if (page==="home") renderHome();
+  else if (page==="search") renderSearch();
+  else if (page==="sim") renderSim();
+  else if (page==="map") renderMap();
+  else renderAbout();
+}
+render();
+</script>
+</body>
+</html>
