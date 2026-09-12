@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { parseSeed, simulateSeed, STRUCTURES } from "../engineCopy";
 
 const COLORS: Record<string, string> = {
@@ -11,7 +12,7 @@ const COLORS: Record<string, string> = {
 };
 
 export default function MapPage() {
-  const params = new URLSearchParams(location.search);
+  const [params] = useSearchParams();
   const [raw, setRaw] = useState(params.get("seed") || "1");
   const [radius, setRadius] = useState(2000);
   const [layers, setLayers] = useState<Record<string, boolean>>(() =>
