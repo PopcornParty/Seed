@@ -1,13 +1,36 @@
 import { Link } from "react-router-dom";
-import { ENGINE_VERSION, TARGET_BEDROCK_VERSION, LIMITATIONS } from "../engineCopy";
+import { ENGINE_VERSION, TARGET_BEDROCK_VERSION, LIMITATIONS, STRUCTURES } from "../engineCopy";
+
 export default function Home() {
+  const implemented = Object.values(STRUCTURES).filter((s) => s.implemented).length;
+  const unsupported = Object.values(STRUCTURES).filter((s) => !s.implemented).length;
   return (
     <div>
-      <h2>Search millions of Minecraft Bedrock seeds for exactly what you want.</h2>
-      <p className="note">Bedrock only. Candidate structures from published salts / MT RNG. Nothing is faked.</p>
-      <p><Link to="/search">Start searching</Link></p>
-      <div className="card">Target Bedrock {TARGET_BEDROCK_VERSION} · engine {ENGINE_VERSION}</div>
-      <div className="card"><ul>{LIMITATIONS.map((n) => <li key={n}>{n}</li>)}</ul></div>
+      <div className="hero">
+        <div>
+          <h2>Search millions of Minecraft Bedrock seeds for exactly what you want.</h2>
+          <p className="lead">
+            Real Bedrock structure-candidate math (region, salt, truncated MT19937).
+            No Java Edition. No fake terrain. Every result is labelled Exact, Validated, Approximate, or Unsupported.
+          </p>
+          <div className="row" style={{ marginTop: 18 }}>
+            <Link className="btn" to="/search">Start Searching</Link>
+            <Link className="btn secondary" to="/docs">Read accuracy notes</Link>
+          </div>
+        </div>
+        <div className="card">
+          <div className="statgrid">
+            <div className="stat">Engine<b>{ENGINE_VERSION}</b></div>
+            <div className="stat">Target<b>BE {TARGET_BEDROCK_VERSION}</b></div>
+            <div className="stat">Implemented<b>{implemented}</b></div>
+            <div className="stat">Unsupported<b>{unsupported}</b></div>
+          </div>
+        </div>
+      </div>
+      <div className="card">
+        <h3>Honest limitations</h3>
+        {LIMITATIONS.map((n) => <p className="note" key={n}>• {n}</p>)}
+      </div>
     </div>
   );
 }
