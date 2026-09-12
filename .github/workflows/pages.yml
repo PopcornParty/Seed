@@ -30,15 +30,17 @@ jobs:
           npm install
           npm run build
           touch dist/.nojekyll
-      - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: web/dist
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4
-      - name: Also publish gh-pages branch
+      - name: Publish gh-pages branch
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: web/dist
           force_orphan: true
+      - name: Upload GitHub Pages artifact
+        continue-on-error: true
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/dist
+      - name: Deploy to GitHub Pages
+        continue-on-error: true
+        uses: actions/deploy-pages@v4
