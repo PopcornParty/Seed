@@ -1,0 +1,13 @@
+title: Seed
+theme: null
+plugins: []
+exclude:
+  - web
+  - engine
+  - native
+  - server
+  - tests
+  - wasm
+  - docs
+  - scripts
+  - node_modules
