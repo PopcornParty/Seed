@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { STRUCTURES, ENGINE_VERSION, TARGET_BEDROCK_VERSION, type ConditionGroup, type SearchStats, type SeedResult, type StructureCondition } from "../engineCopy";
 import { PRESETS } from "../lib/presets";
 import { saveSearch, toggleFavourite } from "../lib/storage";
@@ -72,7 +73,7 @@ export default function SearchPage() {
           stages: { initial: seedCount, structurePass: matched, biomePass: 0, terrainPass: 0, finalMatches: matched },
           bedrockVersion: TARGET_BEDROCK_VERSION, engineVersion: ENGINE_VERSION
         });
-        if (done >= n) { setRunning(false); setStatus("done"); stop(); setStatus("done"); }
+        if (done >= n) { setRunning(false); setStatus("done"); }
       };
       w.postMessage({ ...job, seedStart: start.toString(), seedCount: count, seedStep: "1" });
     }
@@ -90,7 +91,7 @@ export default function SearchPage() {
   return (
     <div>
       <h2>Search</h2>
-      <p className="lead">AND / OR groups. Local Web Workers. Candidates only — confirm in Bedrock.</p>
+      <p className="lead">AND / OR groups. Runs in this browser. Candidates only — confirm in Bedrock.</p>
       <div className="card row">{PRESETS.map((p) => <button key={p.id} className="secondary" onClick={() => applyPreset(p.id)}>{p.name}</button>)}</div>
       {groups.map((g, gi) => (
         <div className="card" key={gi}>
@@ -157,7 +158,7 @@ export default function SearchPage() {
               {selected.structures.map((s, i) => <p key={i}>{s.name} {Math.round(s.distance)}m ({s.x},{s.z}) <span className={`badge ${s.accuracy}`}>{s.accuracy}</span></p>)}
               <button onClick={() => navigator.clipboard.writeText(selected.seed)}>Copy seed</button>
               <button className="secondary" onClick={() => toggleFavourite(selected.seed)}>Favourite</button>
-              <a className="btn secondary" href={`/map?seed=${selected.seed}`}>Open map</a>
+              <Link className="btn secondary" to={`/map?seed=${selected.seed}`}>Open map</Link>
             </div>
           ) : <p className="note">Click a result.</p>}
         </div>
