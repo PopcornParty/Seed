@@ -1,0 +1,16 @@
+{
+  "name": "seed",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Minecraft Bedrock Edition seed hunter — candidate structure search with explicit accuracy labels",
+  "scripts": {
+    "test": "node --test --experimental-strip-types tests/parity/engine.test.ts",
+    "api": "node server/api/index.mjs",
+    "web": "npm --prefix web run dev",
+    "web:build": "npm --prefix web run build",
+    "native:build": "g++ -O3 -std=c++17 -o native/cpp/bedrock-seed-engine native/cpp/cli.cpp",
+    "native:test": "g++ -O3 -std=c++17 -o /tmp/seed-test native/cpp/test_engine.cpp && /tmp/seed-test",
+    "bench:native": "g++ -O3 -std=c++17 -o /tmp/seed-cli native/cpp/cli.cpp && /tmp/seed-cli --bench --count 50000 --need village:1500"
+  }
+}

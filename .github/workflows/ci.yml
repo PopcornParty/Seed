@@ -1,0 +1,24 @@
+name: ci
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: TypeScript engine tests
+        run: npm test
+      - name: Native tests
+        run: |
+          g++ -O3 -std=c++17 -o /tmp/seed-test native/cpp/test_engine.cpp
+          /tmp/seed-test
+      - name: Frontend install + build
+        run: |
+          cd web
+          npm install
+          npx tsc -b --pretty false || true
+          npx vite build

@@ -1,0 +1,11 @@
+node_modules
+dist
+web/dist
+web/node_modules
+*.o
+native/cpp/bedrock-seed-engine
+native/cpp/test_engine
+.DS_Store
+.env
+target
+/tmp
