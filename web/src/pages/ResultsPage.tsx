@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import type { SeedResult } from "../engineCopy";
 import { listFavourites, toggleFavourite } from "../lib/storage";
 
@@ -23,7 +24,7 @@ export default function ResultsPage() {
           <div className="row">
             <button onClick={() => navigator.clipboard.writeText(selected.seed)}>Copy Seed</button>
             <button className="secondary" onClick={() => navigator.clipboard.writeText(selected.structures.map((s) => `${s.x} ${s.z}`).join(" / "))}>Copy Coordinates</button>
-            <a className="btn secondary" href={`/map?seed=${selected.seed}`}>Open Map</a>
+            <Link className="btn secondary" to={`/map?seed=${selected.seed}`}>Open Map</Link>
             <button className="ghost" onClick={() => setFavs(toggleFavourite(selected.seed))}>Favourite</button>
           </div>
         </div>
