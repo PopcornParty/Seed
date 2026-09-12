@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.16)
+project(bedrock_seed_engine LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 17)
+add_executable(bedrock-seed-engine cli.cpp)
+add_executable(bedrock-seed-tests test_engine.cpp)
