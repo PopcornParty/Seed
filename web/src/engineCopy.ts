@@ -3,17 +3,19 @@ export {
   ENGINE_VERSION,
   TARGET_BEDROCK_VERSION,
   LIMITATIONS,
-  FEATURE_STATUS,
   parseSeed,
   runSearchRange,
   collectCandidates,
   structureSeed,
+  evaluateSeed
+} from "../../engine/core/bedrockEngine";
+export {
+  FEATURE_STATUS,
   simulateSeed,
   summarizeResults,
-  evaluateSeed,
   orderConditions,
   structureScanCost
-} from "../../engine/core/bedrockEngine";
+} from "../../engine/core/extras";
 export type {
   Accuracy,
   SearchArea,

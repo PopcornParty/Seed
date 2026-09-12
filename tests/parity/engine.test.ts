@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { mtNGet, candidateInRegion, structureSeed, STRUCTURES, runSearchRange, parseSeed, evaluateSeed } from "../../engine/core/bedrockEngine.ts";
+import { simulateSeed, orderConditions } from "../../engine/core/extras.ts";
 
 test("mtNGet matches C++ gold vector for seed 1 n=4", () => {
   const mt = mtNGet(1, 4);
@@ -33,16 +34,29 @@ test("unsupported ancient city cannot match", () => {
     seedStart: 1n, seedCount: 1, seedStep: 1n,
     area: { centerX: 0, centerZ: 0, radius: 2000 },
     groups: [{ op: "AND", conditions: [{ name: "ancient_city", minCount: 1, maxCount: 1, maxDistance: 2000, minDistance: 0, weight: 10 }] }],
-    ranking: false, topN: 1, bedrockVersion: "1.21", engineVersion: "0.1.0"
+    ranking: false, topN: 1, bedrockVersion: "1.21", engineVersion: "0.2.0"
   });
   assert.equal(res, null);
+});
+test("simulateSeed returns labelled village candidates for seed 1", () => {
+  const hits = simulateSeed(1n, { centerX: 0, centerZ: 0, radius: 800 }, ["village"]);
+  assert.ok(hits.length >= 1);
+  assert.equal(hits[0].accuracy, "VALIDATED");
+  assert.equal(hits[0].name, "village");
+});
+test("orderConditions puts sparse structures first", () => {
+  const ordered = orderConditions([
+    { name: "buried_treasure", minCount: 1, maxCount: 9, maxDistance: 200, minDistance: 0, weight: 1 },
+    { name: "woodland_mansion", minCount: 1, maxCount: 9, maxDistance: 4000, minDistance: 0, weight: 1 }
+  ]);
+  assert.equal(ordered[0].name, "woodland_mansion");
 });
 test("search stats are consistent", () => {
   const out = runSearchRange({
     seedStart: 0n, seedCount: 500, seedStep: 1n,
     area: { centerX: 0, centerZ: 0, radius: 800 },
     groups: [{ op: "AND", conditions: [{ name: "village", minCount: 1, maxCount: 100, maxDistance: 800, minDistance: 0, weight: 10 }] }],
-    ranking: true, topN: 5, bedrockVersion: "1.21", engineVersion: "0.1.0"
+    ranking: true, topN: 5, bedrockVersion: "1.21", engineVersion: "0.2.0"
   });
   assert.equal(out.stats.tested, 500);
   assert.equal(out.stats.matched + out.stats.rejected, 500);
