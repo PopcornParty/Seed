@@ -1,1 +1,149 @@
-PLACEHOLDER_WILL_FAIL
+<!doctype html>
+<html lang="en" data-motion="normal"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Seed — Bedrock Seed Hunter</title>
+<style>
+:root{--bg:#061018;--card:#101c2c;--ink:#eaf3fb;--muted:#8aa0b8;--accent:#3ee0c3;--line:#22364c;--good:#5ad67a}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(900px 500px at 8% -8%,#14344c 0%,var(--bg) 50%);color:var(--ink);font-family:Segoe UI,system-ui,sans-serif}
+.layout{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+nav.side{background:#08141f;border-right:1px solid var(--line);padding:20px 14px;z-index:2}
+h1{margin:0;letter-spacing:.2em;color:var(--accent);animation:glow 2.8s ease-in-out infinite}
+@keyframes glow{50%{text-shadow:0 0 22px #3ee0c3}}
+.sub,.lead,.note{color:var(--muted)}
+.nav{display:block;width:100%;text-align:left;padding:9px 10px;margin:0 0 4px;color:var(--ink);background:0;border:0;border-radius:8px;cursor:pointer}
+.nav.active,.nav:hover{background:#163049}
+main{padding:24px 28px 120px;max-width:1180px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0;animation:rise .45s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.stat{background:#0c1826;border:1px solid var(--line);border-radius:10px;padding:10px}.stat b{display:block;font-size:18px;margin-top:3px}
+button{background:var(--accent);color:#06221f;border:0;border-radius:10px;padding:9px 13px;font-weight:700;cursor:pointer}
+button:hover{transform:translateY(-2px)}
+button.secondary{background:#1b3148;color:var(--ink)}button.ghost{background:transparent;color:#7cd4ff;border:1px solid var(--line)}
+button.danger{background:#3a1717;color:#ffb4b4}
+input,select{background:#0b1624;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px}
+label.field{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+.badge{font-size:11px;padding:2px 8px;border-radius:999px;font-weight:700}
+.badge.VALIDATED{background:#16351f;color:var(--good)}.badge.APPROXIMATE{background:#3a2e12;color:#e7b549}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left}tr{cursor:pointer}
+.cond{display:grid;grid-template-columns:1fr 88px 120px 36px;gap:8px;align-items:end;background:#0c1826;border:1px dashed #2b4560;border-radius:10px;padding:10px;margin:8px 0}
+.bar{height:18px;background:#0b1624;border-radius:99px;overflow:hidden;border:1px solid var(--line);position:relative}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,#3ee0c3,#7cd4ff)}
+.bar>span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
+.match{font-weight:800;color:var(--good)}
+.grid2{display:grid;grid-template-columns:1.15fr .85fr;gap:12px}
+.orbs{position:fixed;inset:0;pointer-events:none}
+.orb{position:absolute;border-radius:50%;filter:blur(18px);opacity:.22;animation:float 12s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-40px)}}
+.player{position:fixed;left:220px;right:0;bottom:0;z-index:20;background:#08141fd9;border-top:1px solid var(--line);padding:10px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.viz{display:flex;gap:3px;height:22px;align-items:flex-end}
+.viz i{width:4px;background:var(--accent);height:4px;animation:eq 1s ease-in-out infinite}
+@keyframes eq{50%{height:20px}}.viz.off i{animation:none;opacity:.35}
+html[data-motion=off] h1,html[data-motion=off] .card,html[data-motion=off] .orb,html[data-motion=off] .viz i{animation:none!important}
+html[data-motion=off] .orbs,html[data-motion=off] #fx{display:none}
+html[data-motion=max] h1{animation:glow .5s linear infinite,hue 3s linear infinite}
+html[data-motion=max] .card{animation:rise .3s ease both,wiggle 1.8s ease-in-out infinite}
+html[data-motion=max] button{animation:pulse 1s ease-in-out infinite}
+html[data-motion=max] .orb{opacity:.45;animation:float 4s ease-in-out infinite,hue 6s linear infinite}
+@keyframes hue{to{filter:hue-rotate(360deg)}}
+@keyframes wiggle{50%{transform:rotate(.5deg)}}
+@keyframes pulse{50%{box-shadow:0 0 16px #3ee0c3}}
+.modal{position:fixed;inset:0;background:#000a;z-index:50;display:none;align-items:center;justify-content:center;padding:16px}
+.modal.on{display:flex}
+.panel{background:#101c2c;border:1px solid var(--line);border-radius:16px;max-width:720px;width:100%;max-height:90vh;overflow:auto;padding:16px}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:30}
+@media(max-width:900px){.layout,.grid2,.cond{grid-template-columns:1fr}.player{left:0}}
+</style></head>
+<body>
+<div class="orbs"><div class="orb" style="width:180px;height:180px;background:#3ee0c3;left:8%;top:18%"></div><div class="orb" style="width:220px;height:220px;background:#7cd4ff;right:8%;top:36%"></div><div class="orb extra" style="width:160px;height:160px;background:#e7b549;left:60%;bottom:20%"></div></div>
+<canvas id="fx"></canvas>
+<div class="layout"><nav class="side"><h1>SEED</h1><div class="sub">Bedrock 1.21</div>
+<button class="nav active" data-page="home">Home</button>
+<button class="nav" data-page="search">Search</button>
+<button class="nav" data-page="sim">Simulator</button>
+<button class="nav" data-page="about">Accuracy</button>
+<button class="nav" id="openDev" type="button">Dev</button></nav>
+<main id="view"></main></div>
+<div class="player">
+<div class="viz off" id="viz"><i></i><i></i><i></i><i></i><i></i></div>
+<button id="mPrev" class="secondary" type="button">Prev</button>
+<button id="mPlay" type="button">Play music</button>
+<button id="mNext" class="secondary" type="button">Next</button>
+<select id="track"></select>
+<label class="field">Volume<input id="vol" type="range" min="0" max="100" value="35"></label>
+<label class="field">Motion<select id="motion"><option value="off">Off</option><option value="normal" selected>Normal</option><option value="max">Over the top</option></select></label>
+<span class="note" id="now">16 original tracks</span>
+</div>
+<div class="modal" id="devModal"><div class="panel">
+<h3>Dev panel</h3>
+<p class="note" id="devGateNote">Password is only checked in this page file.</p>
+<div id="devGate" class="row"><input id="devPass" type="password" placeholder="password"><button id="devUnlock" type="button">Unlock</button></div>
+<div id="devBody" style="display:none">
+<label class="field">Motion<select id="devMotion"><option value="off">Off</option><option value="normal">Normal</option><option value="max">Over the top</option></select></label>
+<label class="field">Workers<input id="devWorkers" type="number" min="1" max="16"></label>
+<label class="field">Seeds<input id="devSeeds" type="number" min="1" max="1000000000"></label>
+<label class="field">Start seed<input id="devStart"></label>
+<label class="field"><input id="devStop99" type="checkbox"> stop at 99%</label>
+<label class="field"><input id="devRandom" type="checkbox"> random</label>
+<label class="field">Volume<input id="devVol" type="range" min="0" max="100"></label>
+<div class="row"><button id="devPlay" type="button">Play music</button><button class="secondary" id="devDump" type="button">Dump state</button><button class="secondary" id="devCopy" type="button">Copy results</button><button class="danger" id="devClear" type="button">Clear results</button><button class="danger" id="devStop" type="button">Stop search</button><button class="ghost" id="devClose" type="button">Close</button></div>
+<pre id="devLog" class="note" style="white-space:pre-wrap;max-height:220px;overflow:auto"></pre>
+</div></div></div>
+<script>
+const S={village:{id:"village",label:"Village",spacing:27,spawnRange:17,salt:10387312,num:4,acc:"VALIDATED"},desert_pyramid:{id:"desert_pyramid",label:"Desert pyramid",spacing:32,spawnRange:24,salt:14357617,num:2,acc:"VALIDATED"},jungle_temple:{id:"jungle_temple",label:"Jungle temple",spacing:32,spawnRange:24,salt:14357617,num:2,acc:"VALIDATED"},swamp_hut:{id:"swamp_hut",label:"Swamp hut",spacing:32,spawnRange:24,salt:14357617,num:2,acc:"VALIDATED"},igloo:{id:"igloo",label:"Igloo",spacing:32,spawnRange:24,salt:14357617,num:2,acc:"VALIDATED"},ocean_monument:{id:"ocean_monument",label:"Ocean monument",spacing:32,spawnRange:27,salt:10387313,num:4,acc:"VALIDATED"},woodland_mansion:{id:"woodland_mansion",label:"Woodland mansion",spacing:80,spawnRange:60,salt:10387319,num:4,acc:"VALIDATED"},pillager_outpost:{id:"pillager_outpost",label:"Pillager outpost",spacing:80,spawnRange:56,salt:165745296,num:4,acc:"VALIDATED"},buried_treasure:{id:"buried_treasure",label:"Buried treasure",spacing:4,spawnRange:2,salt:16842397,num:4,acc:"VALIDATED"},shipwreck:{id:"shipwreck",label:"Shipwreck",spacing:10,spawnRange:5,salt:1,num:4,acc:"VALIDATED"},ocean_ruin:{id:"ocean_ruin",label:"Ocean ruin",spacing:12,spawnRange:5,salt:14357621,num:4,acc:"VALIDATED"},ruined_portal:{id:"ruined_portal",label:"Ruined portal",spacing:40,spawnRange:25,salt:40552231,num:4,acc:"VALIDATED"},nether_complex:{id:"nether_complex",label:"Nether fortress / bastion candidate",spacing:30,spawnRange:26,salt:430084232,num:4,acc:"VALIDATED"},end_city:{id:"end_city",label:"End city",spacing:20,spawnRange:9,salt:10387313,num:4,acc:"VALIDATED"},stronghold:{id:"stronghold",label:"Stronghold (approx)",spacing:0,spawnRange:0,salt:0,num:0,acc:"APPROXIMATE"}};
+const IMPL=Object.values(S);
+const PRESETS=[{name:"5 villages in 1k",rare:0,seeds:2000000,conds:[{id:"village",n:5,d:1000}]},{name:"Village + portal",rare:0,seeds:500000,conds:[{id:"village",n:1,d:400},{id:"ruined_portal",n:1,d:400}]},{name:"Stronghold nearby",rare:0,seeds:1000000,conds:[{id:"stronghold",n:1,d:1500},{id:"village",n:1,d:700}]},{name:"RARE: god spawn pack",rare:1,seeds:100000000,conds:[{id:"village",n:4,d:600},{id:"ruined_portal",n:1,d:400},{id:"pillager_outpost",n:1,d:700}]},{name:"IMPOSSIBLE: kitchen sink 0,0",rare:1,seeds:1000000000,conds:[{id:"village",n:5,d:700},{id:"ruined_portal",n:1,d:300},{id:"pillager_outpost",n:1,d:600},{id:"ocean_monument",n:1,d:1000},{id:"woodland_mansion",n:1,d:1200},{id:"stronghold",n:1,d:1200}]}];
+const ENGINE=`const S=${JSON.stringify(S)};function u32(x){return x>>>0}function twist(seed,i){return u32(Math.imul(1812433253,u32(seed)^u32(seed)>>>30)+i)}function temper(y){y^=y>>>11;y^=y<<7&2636928640;y^=y<<15&4022730752;return u32(y^y>>>18)}function mtN(seed,n,out){let a=u32(seed),b=twist(a,1);if(n===2){let extra=b;for(let i=2;i<397;i++)extra=twist(extra,i);const mag0=extra,mag1=twist(extra,397);let y=(a&0x80000000)+(b&0x7fffffff);var o=y&1;y=y>>>1^mag0;if(o)y^=2567483615;out[0]=temper(y);let c=twist(b,2);y=(b&0x80000000)+(c&0x7fffffff);o=y&1;y=y>>>1^mag1;if(o)y^=2567483615;out[1]=temper(y);return}const mt=new Uint32Array(n+1);mt[0]=a;mt[1]=b;for(let i=2;i<=n;i++)mt[i]=twist(mt[i-1],i);let extra=mt[n];for(let i=n;i<397;i++)extra=twist(extra,i+1);let mag=extra;for(let i=0;i<n;i++){if(i)mag=twist(mag,i+397);let y=(mt[i]&0x80000000)+(mt[i+1]&0x7fffffff);var o=y&1;y=y>>>1^mag;if(o)y^=2567483615;out[i]=temper(y)}}function saltMix(rx,rz,salt){return u32(salt-Math.imul(245998635,rz)-Math.imul(1724254968,rx))}function snap(chunk,spacing,off){let rem=chunk%spacing;if(rem<0)rem+=spacing;let d=off-rem;if(d<0)d+=spacing;return chunk+d}const BUF=new Uint32Array(4);function place(seed32,spec,rx,rz){mtN(u32(saltMix(rx,rz,spec.salt)+seed32),spec.num,BUF);let ox,oz;if(spec.num===2){ox=BUF[0]%spec.spawnRange;oz=BUF[1]%spec.spawnRange}else{ox=((BUF[0]%spec.spawnRange)+(BUF[1]%spec.spawnRange))>>1;oz=((BUF[2]%spec.spawnRange)+(BUF[3]%spec.spawnRange))>>1}return [(snap(rx*spec.spacing,spec.spacing,ox)<<4)+8,(snap(rz*spec.spacing,spec.spacing,oz)<<4)+8]}function dist2(x,z){return x*x+z*z}function scan(seed32,spec,maxd,hits){const maxd2=maxd*maxd;if(spec.id==="stronghold"){mtN(seed32,2,BUF);let ang=6.2831855*(BUF[0]*2.3283064365386963e-10),rad=(BUF[1]%16)+40;for(let i=0;i<3;i++){const x=(Math.cos(ang)*rad|0)<<4,z=(Math.sin(ang)*rad|0)<<4,d2=dist2(x,z);if(d2<=maxd2)hits.push({name:spec.id,label:spec.label,x:x,z:z,distance:Math.sqrt(d2),accuracy:spec.acc});ang+=1.8849558;rad+=8}return}const span=((maxd>>4)/spec.spacing|0)+2;for(let rx=-span;rx<=span;rx++)for(let rz=-span;rz<=span;rz++){const p=place(seed32,spec,rx,rz),d2=dist2(p[0],p[1]);if(d2<=maxd2)hits.push({name:spec.id,label:spec.label,x:p[0],z:p[1],distance:Math.sqrt(d2),accuracy:spec.acc})}}function grade(seed32,conds){const all=[];let parts=0;for(let i=0;i<conds.length;i++){const c=conds[i],spec=S[c.id];if(!spec)return null;const hits=[];scan(seed32,spec,c.d,hits);if(hits.length<c.n)return null;hits.sort((a,b)=>a.distance-b.distance);const used=hits.slice(0,c.n);let close=0;for(let k=0;k<used.length;k++)close+=1-used[k].distance/Math.max(c.d,1);parts+=0.58+0.42*(close/c.n);for(let k=0;k<used.length;k++)all.push(used[k])}return {seed:String(seed32>>>0),match:Math.min(99.9,100*parts/conds.length),hits:all}}`;
+eval(ENGINE+";window.scan=scan;window.grade=grade;");
+function parseSeed(raw){const t=String(raw||"").trim();if(/^-?\d+$/.test(t)){try{return {seed:BigInt(t),acc:"EXACT"}}catch(e){}}let h=0n;for(const ch of t)h=(h*31n+BigInt(ch.charCodeAt(0)))&((1n<<64n)-1n);return {seed:h,acc:"APPROXIMATE"}}
+const view=document.getElementById("view");let page="home";
+const state={conds:[{id:"village",n:5,d:1000}],seedCount:2000000,start:"0",workers:Math.min(8,navigator.hardwareConcurrency||4),stop99:true,random:false,running:false,stats:null,results:[],simSeed:"1",workersRef:[]};
+document.querySelectorAll(".nav[data-page]").forEach(btn=>{btn.onclick=()=>{document.querySelectorAll(".nav").forEach(b=>b.classList.remove("active"));btn.classList.add("active");page=btn.dataset.page;render()}});
+function badge(a){return `<span class="badge ${a}">${a}</span>`}
+function opts(sel){return IMPL.map(s=>`<option value="${s.id}" ${s.id===sel?"selected":""}>${s.label}</option>`).join("")}
+function applyPreset(i){const p=PRESETS[i];state.conds=p.conds.map(c=>({...c}));if(p.seeds)state.seedCount=p.seeds;const sc=document.getElementById("sc");if(sc)sc.value=state.seedCount}
+function renderHome(){view.innerHTML=`<h2>Find a Bedrock seed</h2><p class="lead">Motion is in the bottom bar. Dev is locked. Confirm seeds with /locate.</p><div class="card row">${PRESETS.map((p,i)=>`<button class="${p.rare?"":"secondary"}" data-p="${i}">${p.name}</button>`).join("")}</div><button id="goSearch">Open Search</button>`;view.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{applyPreset(+b.dataset.p);document.querySelector('[data-page=search]').click()});document.getElementById("goSearch").onclick=()=>document.querySelector('[data-page=search]').click()}
+function renderSearch(){view.innerHTML=`<h2>Search</h2><div class="card row">${PRESETS.map((p,i)=>`<button class="${p.rare?"":"secondary"}" data-p="${i}">${p.name}</button>`).join("")}</div><div class="card" id="conds"></div><button class="secondary" id="add">+ add structure</button><div class="card row"><label class="field">Seeds<input id="sc" type="number" min="1" max="1000000000" value="${state.seedCount}"></label><label class="field">Start seed<input id="ss" value="${state.start}"></label><label class="field">Workers<input id="wk" type="number" min="1" max="16" value="${state.workers}"></label><label class="field"><input id="r99" type="checkbox" ${state.stop99?"checked":""}> stop at 99%</label><label class="field"><input id="rnd" type="checkbox" ${state.random?"checked":""}> random</label><button id="go">Find seeds</button><button class="danger" id="stop">Stop</button></div><div id="stats"></div><div class="grid2"><div class="card"><table><thead><tr><th>#</th><th>Seed</th><th>Match</th></tr></thead><tbody id="rows"></tbody></table></div><div class="card" id="detail"><p class="note">Click a seed.</p></div></div>`;paintConds();paintResults();view.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{applyPreset(+b.dataset.p);paintConds()});document.getElementById("add").onclick=()=>{state.conds.push({id:"ruined_portal",n:1,d:800});paintConds()};document.getElementById("go").onclick=()=>{readForm();runSearch()};document.getElementById("stop").onclick=stopSearch}
+function paintConds(){const box=document.getElementById("conds");if(!box)return;box.innerHTML=state.conds.map((c,i)=>`<div class="cond"><label class="field">I want<select data-k="id" data-i="${i}">${opts(c.id)}</select></label><label class="field">How many<input data-k="n" data-i="${i}" type="number" min="1" max="20" value="${c.n}"></label><label class="field">Within blocks<input data-k="d" data-i="${i}" type="number" min="32" max="8000" value="${c.d}"></label><button class="ghost" data-del="${i}">x</button></div>`).join("");box.querySelectorAll("[data-k]").forEach(el=>el.oninput=()=>{const i=+el.dataset.i,k=el.dataset.k;state.conds[i][k]=k==="id"?el.value:Number(el.value)});box.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{state.conds.splice(+b.dataset.del,1);paintConds()})}
+function readForm(){state.seedCount=Math.max(1,Math.min(1000000000,Number(document.getElementById("sc").value)||1));state.start=document.getElementById("ss").value;state.workers=Math.max(1,Math.min(16,Number(document.getElementById("wk").value)||1));state.stop99=document.getElementById("r99").checked;state.random=document.getElementById("rnd").checked}
+function paintResults(){const stats=document.getElementById("stats"),rows=document.getElementById("rows");if(!stats||!rows)return;if(state.stats){const tested=Math.min(state.stats.tested||0,state.stats.total||0),total=state.stats.total||0,pct=total?Math.min(100,tested*100/total):0,eta=state.stats.sps>0?Math.max(0,(total-tested)/state.stats.sps):0;stats.innerHTML=`<div class="card"><strong>Search progress ${pct.toFixed(2)}%</strong><div class="bar"><i style="width:${pct.toFixed(2)}%"></i><span>${tested.toLocaleString()} / ${total.toLocaleString()}</span></div></div><div class="statgrid"><div class="stat">Status<b>${state.running?"SEARCH RUNNING":"done"}</b></div><div class="stat">Speed<b>${Math.round(state.stats.sps).toLocaleString()}/s</b></div><div class="stat">Hits<b>${state.stats.matched.toLocaleString()}</b></div><div class="stat">ETA<b>${eta>90?(eta/60).toFixed(1)+" min":eta.toFixed(0)+"s"}</b></div></div>`}rows.innerHTML=state.results.map((r,i)=>`<tr data-i="${i}"><td>${i+1}</td><td>${r.seed}</td><td class="match">${r.match.toFixed(1)}%</td></tr>`).join("");rows.querySelectorAll("tr").forEach(tr=>tr.onclick=()=>{const r=state.results[+tr.dataset.i];state.simSeed=r.seed;document.getElementById("detail").innerHTML=`<h3>SEED ${r.seed}</h3><p class="match">${r.match.toFixed(1)}%</p>${r.hits.map(h=>`<p>${h.label||h.name} — ${Math.round(h.distance)} blocks (${h.x}, ${h.z}) ${badge(h.accuracy)}</p>`).join("")}<button onclick="navigator.clipboard.writeText('${r.seed}')">Copy seed</button>`})}
+function stopSearch(){state.running=false;state.workersRef.forEach(w=>{try{w.terminate()}catch(e){}});state.workersRef=[];paintResults()}
+function runSearch(){stopSearch();if(!state.conds.length)return;state.running=true;state.results=[];state.stats={tested:0,matched:0,sps:0,total:state.seedCount};paintResults();const n=state.workers,per=Math.ceil(state.seedCount/n),startLow=Number(parseSeed(state.start).seed&0xffffffffn)>>>0,t0=performance.now();let done=0;const live=Array(n).fill(0),liveMatch=Array(n).fill(0);const src=ENGINE+"\nonmessage=function(ev){var d=ev.data,results=[],matched=0;for(var i=0;i<d.count;i++){var s=d.random?((Math.random()*0x100000000)>>>0):((d.start+i)>>>0);var g=grade(s,d.conds);if(g){matched++;results.push(g);if(results.length>20){results.sort(function(a,b){return b.match-a.match});results.length=20}if(d.stop99&&g.match>=99){postMessage({type:'done',wid:d.wid,tested:i+1,matched:matched,results:results});return}}if((i&8191)===8191)postMessage({type:'prog',wid:d.wid,tested:i+1,matched:matched,results:null})}postMessage({type:'done',wid:d.wid,tested:d.count,matched:matched,results:results})}";for(let w=0;w<n;w++){const count=Math.max(0,Math.min(per,state.seedCount-w*per));if(!count){done++;continue}const worker=new Worker(URL.createObjectURL(new Blob([src],{type:"text/javascript"})));state.workersRef.push(worker);worker.onmessage=ev=>{const m=ev.data;if(m.results&&m.results.length){const acc=new Map(state.results.map(r=>[r.seed,r]));for(const r of m.results)acc.set(r.seed,r);state.results=[...acc.values()].sort((a,b)=>b.match-a.match).slice(0,40);if(document.documentElement.getAttribute("data-motion")==="max")burst()}if(typeof m.wid==="number"){live[m.wid]=m.tested||0;liveMatch[m.wid]=m.matched||0}if(m.type==="done"){done++;worker.terminate();if(state.stop99&&state.results.some(r=>r.match>=99))stopSearch();if(done>=n)state.running=false}state.stats.tested=live.reduce((a,b)=>a+b,0);state.stats.matched=liveMatch.reduce((a,b)=>a+b,0);state.stats.sps=(performance.now()-t0)>0?state.stats.tested*1000/(performance.now()-t0):0;paintResults()};worker.postMessage({wid:w,start:(startLow+w*per)>>>0,count,random:state.random,conds:state.conds,stop99:state.stop99})}}
+function renderSim(){view.innerHTML=`<h2>Simulator</h2><div class="card row"><label class="field">Seed<input id="sim" value="${state.simSeed}"></label><label class="field">Radius<input id="sr" type="number" value="2000"></label><button id="simgo">Simulate</button></div><div class="card" id="simout"></div>`;const run=()=>{state.simSeed=document.getElementById("sim").value;const r=Number(document.getElementById("sr").value);const parsed=parseSeed(state.simSeed);const seed32=Number(parsed.seed&0xffffffffn)>>>0;let html=`<p>${badge(parsed.acc)} ${seed32}</p>`;for(const spec of IMPL){const hits=[];scan(seed32,spec,r,hits);hits.sort((a,b)=>a.distance-b.distance);html+=`<p><strong>${spec.label}</strong> ${badge(spec.acc)} — ${hits.length?hits.slice(0,5).map(h=>Math.round(h.distance)+"m ("+h.x+","+h.z+")").join(" · "):"none"}</p>`}document.getElementById("simout").innerHTML=html};document.getElementById("simgo").onclick=run;run()}
+function renderAbout(){view.innerHTML=`<h2>Accuracy</h2><div class="card"><p>Candidates ${badge("VALIDATED")}. Stronghold ${badge("APPROXIMATE")}. Dev password is only in this file.</p></div>`}
+const TRACKS=[{name:"Spawn Plains",bpm:88,wave:"triangle",notes:[0,2,4,7,4,2,0,7]},{name:"Village Bells",bpm:96,wave:"sine",notes:[0,4,7,11,7,4,2,4]},{name:"Ocean Hunt",bpm:76,wave:"sine",notes:[0,3,5,7,10,7,5,3]},{name:"Nether Pulse",bpm:128,wave:"square",notes:[0,0,3,0,5,3,0,7]},{name:"End Void",bpm:64,wave:"triangle",notes:[0,7,3,10,7,3,0,12]},{name:"Mansion Hall",bpm:84,wave:"sawtooth",notes:[0,2,3,7,3,2,5,7]},{name:"Treasure Dive",bpm:110,wave:"triangle",notes:[4,0,7,4,9,7,4,0]},{name:"Stronghold Steps",bpm:100,wave:"square",notes:[0,2,0,5,0,7,5,2]},{name:"Cherry Wind",bpm:90,wave:"sine",notes:[0,2,4,5,7,5,4,2]},{name:"Desert March",bpm:118,wave:"sawtooth",notes:[0,3,5,0,7,5,3,0]},{name:"Jungle Drums",bpm:132,wave:"square",notes:[0,0,5,0,7,0,5,3]},{name:"Snow Night",bpm:72,wave:"sine",notes:[0,4,7,12,7,4,2,0]},{name:"Portal Hum",bpm:80,wave:"triangle",notes:[0,7,12,7,5,7,3,0]},{name:"Speedrun Beat",bpm:140,wave:"square",notes:[0,7,0,5,0,3,7,12]},{name:"Impossible Theme",bpm:92,wave:"sawtooth",notes:[0,3,7,10,12,10,7,3]},{name:"Deep Dark",bpm:70,wave:"triangle",notes:[0,5,3,8,5,0,8,12]}];
+const SCALE=[261.63,293.66,329.63,349.23,392,440,493.88,523.25,587.33,659.25,698.46,783.99,880];
+let actx=null,gain=null,playing=false,tid=0,step=0;
+const tsel=document.getElementById("track");TRACKS.forEach((tr,i)=>{const o=document.createElement("option");o.value=i;o.textContent=(i+1)+". "+tr.name;tsel.appendChild(o)});
+function ensure(){if(actx)return;actx=new (window.AudioContext||window.webkitAudioContext)();gain=actx.createGain();gain.gain.value=(Number(document.getElementById("vol").value)||35)/100;gain.connect(actx.destination)}
+function beep(freq,dur,type,when){const o=actx.createOscillator(),g=actx.createGain();o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(0.0001,when);g.gain.exponentialRampToValueAtTime(0.12,when+0.02);g.gain.exponentialRampToValueAtTime(0.0001,when+dur);o.connect(g);g.connect(gain);o.start(when);o.stop(when+dur+0.02)}
+function tick(){if(!playing||!actx)return;const tr=TRACKS[Number(tsel.value)||0];const now=actx.currentTime;const n=tr.notes[step%tr.notes.length];const freq=SCALE[Math.max(0,Math.min(SCALE.length-1,n))];beep(freq,60/tr.bpm*0.7,tr.wave,now);if(step%2===0)beep(freq/2,60/tr.bpm*0.35,"triangle",now);step++;tid=setTimeout(tick,60000/tr.bpm);document.getElementById("now").textContent="Now: "+tr.name}
+function play(){ensure();actx.resume();playing=true;document.getElementById("viz").classList.remove("off");document.getElementById("mPlay").textContent="Pause";clearTimeout(tid);tick()}
+function pause(){playing=false;clearTimeout(tid);document.getElementById("viz").classList.add("off");document.getElementById("mPlay").textContent="Play music"}
+document.getElementById("mPlay").onclick=()=>{playing?pause():play()};
+document.getElementById("mNext").onclick=()=>{tsel.selectedIndex=(tsel.selectedIndex+1)%TRACKS.length;if(playing){pause();play()}};
+document.getElementById("mPrev").onclick=()=>{tsel.selectedIndex=(tsel.selectedIndex-1+TRACKS.length)%TRACKS.length;if(playing){pause();play()}};
+tsel.onchange=()=>{if(playing){pause();play()}};
+document.getElementById("vol").oninput=()=>{if(gain)gain.gain.value=Number(document.getElementById("vol").value)/100};
+function setMotion(m){m=(m==="off"||m==="max")?m:"normal";document.documentElement.setAttribute("data-motion",m);localStorage.setItem("seed_motion",m);const a=document.getElementById("motion"),b=document.getElementById("devMotion");if(a)a.value=m;if(b)b.value=m}
+function burst(){const c=document.getElementById("fx");if(!c)return;const x=c.getContext("2d");c.width=innerWidth;c.height=innerHeight;const bits=[];for(let i=0;i<70;i++)bits.push({x:innerWidth/2,y:innerHeight/3,vx:(Math.random()-.5)*8,vy:Math.random()*-6-1,life:1,col:["#3ee0c3","#7cd4ff","#e7b549","#5ad67a"][i%4]});let n=0;(function loop(){x.clearRect(0,0,c.width,c.height);bits.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.12;p.life-=.02;x.globalAlpha=Math.max(0,p.life);x.fillStyle=p.col;x.fillRect(p.x,p.y,4,4)});if(++n<70)requestAnimationFrame(loop)})()}
+const DEV_PW="FERRARI1";
+function fillDev(){const d=document;d.getElementById("devMotion").value=document.documentElement.getAttribute("data-motion")||"normal";d.getElementById("devWorkers").value=state.workers;d.getElementById("devSeeds").value=state.seedCount;d.getElementById("devStart").value=state.start;d.getElementById("devStop99").checked=state.stop99;d.getElementById("devRandom").checked=state.random;d.getElementById("devVol").value=d.getElementById("vol").value;d.getElementById("devLog").textContent=JSON.stringify({page,motion:document.documentElement.getAttribute("data-motion"),workers:state.workers,seedCount:state.seedCount,start:state.start,running:state.running,hits:state.results.length,top:state.results.slice(0,5),tracks:TRACKS.map(t=>t.name)},null,2)}
+document.getElementById("openDev").onclick=()=>document.getElementById("devModal").classList.add("on");
+document.getElementById("devClose").onclick=()=>document.getElementById("devModal").classList.remove("on");
+document.getElementById("devUnlock").onclick=()=>{if(document.getElementById("devPass").value!==DEV_PW){document.getElementById("devGateNote").textContent="Wrong password.";return}document.getElementById("devGate").style.display="none";document.getElementById("devBody").style.display="block";document.getElementById("devGateNote").textContent="Unlocked.";fillDev()};
+document.getElementById("motion").onchange=e=>setMotion(e.target.value);
+document.getElementById("devMotion").onchange=e=>setMotion(e.target.value);
+document.getElementById("devWorkers").oninput=e=>{state.workers=Math.max(1,Math.min(16,+e.target.value||1));const w=document.getElementById("wk");if(w)w.value=state.workers};
+document.getElementById("devSeeds").oninput=e=>{state.seedCount=Math.max(1,Math.min(1e9,+e.target.value||1));const s=document.getElementById("sc");if(s)s.value=state.seedCount};
+document.getElementById("devStart").oninput=e=>{state.start=e.target.value;const s=document.getElementById("ss");if(s)s.value=state.start};
+document.getElementById("devStop99").onchange=e=>{state.stop99=e.target.checked};
+document.getElementById("devRandom").onchange=e=>{state.random=e.target.checked};
+document.getElementById("devVol").oninput=e=>{document.getElementById("vol").value=e.target.value;if(gain)gain.gain.value=+e.target.value/100};
+document.getElementById("devPlay").onclick=()=>{playing?pause():play()};
+document.getElementById("devDump").onclick=fillDev;
+document.getElementById("devCopy").onclick=()=>navigator.clipboard.writeText(JSON.stringify(state.results,null,2));
+document.getElementById("devClear").onclick=()=>{state.results=[];state.stats=null;paintResults();fillDev()};
+document.getElementById("devStop").onclick=()=>{stopSearch();fillDev()};
+setMotion(localStorage.getItem("seed_motion")||"normal");
+function render(){if(page==="home")renderHome();else if(page==="search")renderSearch();else if(page==="sim")renderSim();else renderAbout()} render();
+</script></body></html>
